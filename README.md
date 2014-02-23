@@ -1,15 +1,50 @@
 ![AwsSsh](https://github.com/philipforget/awsssh/raw/master/awsssh.png "AwsSsh")
 
-awsssh is an ssh configuration management tool for AWS EC2 instances. It uses `boto` to query for running instances and generates a valid ssh config entry for each instance.
+awsssh, pronounced osh, is an ssh configuration management tool for AWS EC2 instances. It uses `boto` to query for running instances and generates a valid ssh config entry for each instance.
 
-
-awssh will first read from `~/.awssh.json`, which is a json config of hosts and
+awsssh will first read from `~/.awsssh.json`, which is a json config of hosts and
 AWS keys, falling back to environment variables set for a single host using `AWS_ACCESS_KEY_ID`
 and `AWS_SECRET_ACCESS_KEY` to connect with boto.
 
+## Installation
+
+awsssh can be installed easily via pip.
+
+```bash
+# Try this first in case you have write access to your default pip location
+pip install awsssh
+
+# If that fails because you are using your system python or something
+sudo pip install awsssh
+```
+
+## Usage
+
+```bash
+# Append new config data to the default ssh config
+awsssh >> ~/.ssh/config
+
+# Be way cooler about it by using a separate file
+awsssh > ~/.ssh/configs/aws && sshconfig
+# The above assumes such an alias for easily combining configs
+alias sshconfig='> ~/.ssh/config && for f in ~/.ssh/config_*; do echo "# generated from $f" >> ~/.ssh/config && grep -hv ^# $f >> ~/.ssh/config; done'
+```
+
+## Config
+
+awsssh reads from an optional json config file describing hosts and their associated access key and secret. A sample config looks like
+
+```json
+{
+    "readability": ["access_key", "secret_key"],
+    "readlists": ["access_key", "secret_key"],
+    "secret_meat_project": ["access_key", "secret_key"]
+}
+```
+
 ## Aliases
 
-Some convenient aliases can be installed for convenient s key smashing.
+Some convenient aliases can be installed for satisfying s key smashing.
 
 ```bash
 cat <<EOF >> ~/.aliases
