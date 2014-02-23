@@ -42,6 +42,14 @@ awsssh reads from an optional json config file describing hosts and their associ
 }
 ```
 
+## TODO
+
+- Investigate if the config should include a simple way to define things like what the username should be, ports, etc.
+- If the above is assumed to be yes, an easy way to differentiate those things based on simple filter-like functions.
+- Introduce a simple way to encrypt and decrypt the key data on the fly.
+- Make a nice setup.py for actual easy installation.
+
+
 ## Aliases
 
 Some convenient aliases can be installed for satisfying s key smashing.
