@@ -1,19 +1,29 @@
 #!/usr/bin/env python
-
 import getpass
 import json
 import os
 import subprocess
 
-CONFIG_PATH = os.path.expanduser("~/me/aws-ssh/config.json")
+
+CONFIG_PATH = os.path.join(os.path.expanduser("~"), ".awsssh.json")
+HOST_TMP = """host {hostname}
+    {configs}
+
+"""
+CONFIG_TMP = "    {key} {value}\n"
 
 
 def generate_ssh_configs():
     #config = decrypt_config()
     config = read_raw_config()
-    for host, keys in config.items():
-        # Do stuff
-        pass
+    for env, env_data in config.items():
+        print env_data
+
+
+def generate_single_host(config_entry, instance_details):
+    return HOST_TMP.format(
+        hostname = instance_details.dns_name,
+        configs = "".join(map(lambda x: CONFIG_TMP.format(**instance_details))))
 
 
 def read_raw_config():
