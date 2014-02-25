@@ -1,4 +1,4 @@
-![AwsSsh](https://github.com/philipforget/awsssh/raw/master/awsssh.png "AwsSsh")
+![AwsSsh](https://github.com/philipforget/awsssh/raw/master/logo.png "AwsSsh")
 
 awsssh, pronounced osh, is an ssh configuration management tool for AWS EC2 instances. It uses `boto` to query for running instances and generates a valid ssh config entry for each instance.
 
