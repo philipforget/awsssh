@@ -53,10 +53,8 @@ Extra `configs` will get written to each host entry. There's no smarts in place 
 
 ## TODO
 
-- Investigate if the config should include a simple way to define things like what the username should be, ports, etc.
-- If the above is assumed to be yes, an easy way to differentiate those things based on simple filter-like functions.
-- Introduce a simple way to encrypt and decrypt the key data on the fly.
-- Make a nice setup.py for actual easy installation.
+- Introduce a simple way to encrypt and decrypt the config data on the fly.
+- Read from a boto config file if a user has one and no awssssh config.
 
 
 ## Aliases
