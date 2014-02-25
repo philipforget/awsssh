@@ -10,7 +10,7 @@ setup(
     author_email = 'philipforget@gmail.com',
     url = 'https://github.com/philipforget/awsssh',
     packages = ['awsssh'],
-    install_requires  =  ['boto>=2', 'ipython'],
+    install_requires  =  ['boto>=2'],
     entry_points = {
         'console_scripts': ['awsssh = awsssh.awsssh:main']
     }
