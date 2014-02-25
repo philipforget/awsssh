@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import json
 import os
 import sys
@@ -88,5 +89,12 @@ def read_raw_config():
         sys.exit(1)
 
 
-if __name__ == '__main__':
+def main():
+    """
+    Script entrypoint, kicks off the config creation.
+    """
     generate_ssh_configs(read_raw_config())
+
+
+if __name__ == '__main__':
+    main()
