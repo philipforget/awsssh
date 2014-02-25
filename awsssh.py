@@ -1,42 +1,92 @@
 #!/usr/bin/env python
-import getpass
 import json
 import os
-import subprocess
+import sys
+
+import boto.ec2
 
 
-CONFIG_PATH = os.path.join(os.path.expanduser("~"), ".awsssh.json")
+CONFIG_PATH = os.path.expanduser('~/.awsssh.json')
+
 HOST_TMP = """host {hostname}
-    {configs}
-
+{configs}
 """
-CONFIG_TMP = "    {key} {value}\n"
+CONFIG_TMP = "    {key} {value}"
 
 
-def generate_ssh_configs():
-    #config = decrypt_config()
-    config = read_raw_config()
-    for env, env_data in config.items():
-        print env_data
+def generate_ssh_configs(config_dict):
+    """
+    Generate all of ssh configs specified in the config.
+    """
+    configs = []
+    for env_name, env_dict in config_dict.items():
+        configs.append(generate_env_config(env_name, env_dict))
+
+    sys.stdout.write("\n".join(configs))
 
 
-def generate_single_host(config_entry, instance_details):
+def generate_env_config(env_name, env_dict):
+    """
+    Generate a single environment's ssh config.
+    """
+    instances = grab_ec2_instances(**env_dict)
+    confs = []
+    for instance, instance_dict in instances.items():
+        confs.append(
+            generate_single_host(
+                instance, instance_dict, env_dict.get('configs')))
+
+    return "\n".join(confs)
+
+
+def grab_ec2_instances(keys, region=None, *args, **kwargs):
+    """
+    Grab all the metadata about the instances available on ec2.
+    """
+    conn = boto.ec2.connect_to_region(region or 'us-east-1',
+        aws_access_key_id = keys[0],
+        aws_secret_access_key = keys[1])
+
+    reservations = conn.get_all_instances()
+
+    ec2_instances = {}
+    for instance in reservations:
+        instance = instance.instances[0]
+        if instance.state == 'running':
+            try:
+                ec2_instances[instance.tags['Name']] = {'Hostname': instance.dns_name}
+            except Exception:
+                sys.stderr.write('Error retrieving %s' % instance.id)
+    return ec2_instances
+
+
+def generate_single_host(instance, instance_dict, env_configs=None):
+    """
+    Generate a single host entry.
+    """
+    configs = []
+    for key, value in instance_dict.items():
+        configs.append(CONFIG_TMP.format(key=key, value=value))
+    if env_configs:
+        for key, value in env_configs.items():
+            configs.append(CONFIG_TMP.format(key=key, value=value))
+
     return HOST_TMP.format(
-        hostname = instance_details.dns_name,
-        configs = "".join(map(lambda x: CONFIG_TMP.format(**instance_details))))
+        hostname = instance,
+        configs = "\n".join(configs))
 
 
 def read_raw_config():
-    with open(CONFIG_PATH, 'r') as config_file:
-        return json.loads(config_file.read())
-
-
-def decrypt_config():
-    # TODO: Check the best way to pass the password to openssl
-    raw_config = subprocess.check_output(
-        ["openssl", "aes-256-cbc", "-d", "-a", "-in", CONFIG_PATH,
-            getpass.getpass('Enter config key: ')])
+    """
+    Load the config file from disk and parse the contents.
+    """
+    try:
+        with open(CONFIG_PATH, 'r') as config_file:
+            return json.loads(config_file.read())
+    except ValueError:
+        sys.stderr.write("Invalid config file\n")
+        sys.exit(1)
 
 
 if __name__ == '__main__':
-    generate_ssh_configs()
+    generate_ssh_configs(read_raw_config())
