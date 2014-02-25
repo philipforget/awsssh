@@ -36,10 +36,19 @@ awsssh reads from an optional json config file describing hosts and their associ
 
 ```json
 {
-    "readability": ["access_key", "secret_key"],
-    "readlists": ["access_key", "secret_key"],
-    "secret_meat_project": ["access_key", "secret_key"]
+    "readability": {
+        "keys": ["AMAZON_ACCESS_KEY", "AMAZON_SECRET_KEY"]
+    },
+    "secret_meat_project": {
+        "keys": ["AMAZON_ACCESS_KEY", "AMAZON_SECRET_KEY"],
+        "configs" : {
+            "User": "ec2-user",
+            "IdentityFile": "~/.ssh/some_key.pem"
+        }
+    }
 }
+
+Extra `configs` will get written to each host entry. There's no smarts in place for that just yet.
 ```
 
 ## TODO
