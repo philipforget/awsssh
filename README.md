@@ -47,9 +47,9 @@ awsssh reads from an optional json config file describing hosts and their associ
         }
     }
 }
+```
 
 Extra `configs` will get written to each host entry. There's no smarts in place for that just yet.
-```
 
 ## TODO
 
