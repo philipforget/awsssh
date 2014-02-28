@@ -9,7 +9,7 @@ import boto.ec2
 
 CONFIG_PATH = os.path.expanduser('~/.awsssh.json')
 
-HOST_TMP = """host {hostname}
+HOST_TMP = """Host {hostname}
 {configs}
 """
 CONFIG_TMP = "    {key} {value}"
@@ -55,7 +55,7 @@ def grab_ec2_instances(keys, region=None, *args, **kwargs):
         instance = instance.instances[0]
         if instance.state == 'running':
             try:
-                ec2_instances[instance.tags['Name']] = {'Hostname': instance.dns_name}
+                ec2_instances[instance.tags['Name']] = {'HostName': instance.dns_name}
             except Exception:
                 sys.stderr.write('Error retrieving %s' % instance.id)
     return ec2_instances
