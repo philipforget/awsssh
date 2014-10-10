@@ -54,14 +54,14 @@ def grab_ec2_instances(keys, region=None, *args, **kwargs):
     reservations = conn.get_all_instances(filters=filters)
 
     hostname_key = kwargs.get('hostname_key', 'public_dns_name')
-    hostname_format = kwargs.get('hostname_format')
+    host_format = kwargs.get('host_format')
 
     ec2_instances = {}
     for instance in reservations:
         instance = instance.instances[0]
         try:
-            if hostname_format:
-                host_identifier = hostname_format.format(**instance.__dict__)
+            if host_format:
+                host_identifier = host_format.format(**instance.__dict__)
             else:
                 host_identifier = instance.tags['Name']
             ec2_instances[host_identifier] = {'HostName': getattr(instance, hostname_key)}
