@@ -29,6 +29,7 @@ def generate_ssh_configs(config_dict):
 def generate_env_config(env_name, env_dict):
     """
     Generate a single environment's ssh config.
+
     """
     instances = grab_ec2_instances(**env_dict)
     confs = []
@@ -45,25 +46,34 @@ def grab_ec2_instances(keys, region=None, *args, **kwargs):
     Grab all the metadata about the instances available on ec2.
     """
     conn = boto.ec2.connect_to_region(region or 'us-east-1',
-        aws_access_key_id = keys[0],
-        aws_secret_access_key = keys[1])
+        aws_access_key_id=keys[0],
+        aws_secret_access_key=keys[1])
 
-    reservations = conn.get_all_instances()
+    filters = {"instance-state-name": "running"}
+    filters.update(kwargs.get('filters', {}))
+    reservations = conn.get_all_instances(filters=filters)
+
+    hostname_key = kwargs.get('hostname_key', 'public_dns_name')
+    hostname_format = kwargs.get('hostname_format')
 
     ec2_instances = {}
     for instance in reservations:
         instance = instance.instances[0]
-        if instance.state == 'running':
-            try:
-                ec2_instances[instance.tags['Name']] = {'HostName': instance.dns_name}
-            except Exception:
-                sys.stderr.write('Error retrieving %s' % instance.id)
+        try:
+            if hostname_format:
+                host_identifier = hostname_format.format(**instance.__dict__)
+            else:
+                host_identifier = instance.tags['Name']
+            ec2_instances[host_identifier] = {'HostName': getattr(instance, hostname_key)}
+        except Exception:
+            sys.stderr.write('Error retrieving %s' % instance.id)
     return ec2_instances
 
 
 def generate_single_host(instance, instance_dict, env_configs=None):
     """
     Generate a single host entry.
+
     """
     configs = []
     for key, value in instance_dict.items():
