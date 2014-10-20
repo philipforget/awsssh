@@ -57,16 +57,16 @@ def grab_ec2_instances(keys, region=None, *args, **kwargs):
     host_format = kwargs.get('host_format')
 
     ec2_instances = {}
-    for instance in reservations:
-        instance = instance.instances[0]
-        try:
-            if host_format:
-                host_identifier = host_format.format(**instance.__dict__)
-            else:
-                host_identifier = instance.tags['Name']
-            ec2_instances[host_identifier] = {'HostName': getattr(instance, hostname_key)}
-        except Exception:
-            sys.stderr.write('Error retrieving %s' % instance.id)
+    for reservation in reservations:
+        for instance in reservation.instances:
+            try:
+                if host_format:
+                    host_identifier = host_format.format(**instance.__dict__)
+                else:
+                    host_identifier = instance.tags['Name']
+                ec2_instances[host_identifier] = {'HostName': getattr(instance, hostname_key)}
+            except Exception:
+                sys.stderr.write('Error retrieving %s' % instance.id)
     return ec2_instances
 
 
@@ -83,8 +83,8 @@ def generate_single_host(instance, instance_dict, env_configs=None):
             configs.append(CONFIG_TMP.format(key=key, value=value))
 
     return HOST_TMP.format(
-        hostname = instance,
-        configs = "\n".join(configs))
+        hostname=instance,
+        configs="\n".join(configs))
 
 
 def read_raw_config():
